@@ -867,4 +867,4 @@ def run(args):
 
 if __name__ == '__main__':
 ##    main(r'C:\Users\dentos\Documents\GitHub\ViPR-SRM-tools\AlertingConfig\alerting-grouped-boxes.xml nul'.split())
-    main('--wsgi'.split())
+    main()
