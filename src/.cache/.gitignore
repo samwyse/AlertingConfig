@@ -1,0 +1,4 @@
+# ignore files cached by accident
+*
+# but keep this file
+!.gitignore
