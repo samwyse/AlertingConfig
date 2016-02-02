@@ -168,14 +168,13 @@ class ArgParser(object):
     def __init__(self, parser, args, runapp,
                  headers=[('Content-Type', 'text/plain')],
                  skip_groups=set(),
-                 submit_actions=(
-                     argparse._HelpAction,
-                     argparse._VersionAction)
+                 submit_actions=(),
                  ):
         self.parser = parser
         self.args = args
         self.runapp = runapp
         self.skip_groups = skip_groups
+        self.submit_actions = submit_actions
         self.headers = headers
 
         my_body = Body()
@@ -186,7 +185,6 @@ class ArgParser(object):
         if parser.epilog:
             my_body += P(parser.epilog)
 
-        submit_actions = []
         for action_group in parser._action_groups:
             if not action_group._group_actions:
                 continue
@@ -199,10 +197,11 @@ class ArgParser(object):
                 my_table += P(action_group.description)
             for action in action_group._group_actions:
                 try:
-                    if isinstance(action, submit_actions):
-                        submit_actions.append(action)
+                    if submit_actions and isinstance(action, submit_actions):
                         continue
-                    if action.nargs == 0:
+                    elif isinstance(action, argparse._HelpAction):
+                        continue
+                    elif action.nargs == 0:
                         input_tag = Input(type='checkbox')
                     elif action.choices:
                         input_tag = Select()
@@ -226,7 +225,6 @@ class ArgParser(object):
                 my_table += input_tag
                 if action.help:
                     my_table += P(I(action.help))
-                my_table += Br()
         my_form += Input(type="submit")
         for action in submit_actions:
             my_form += Input(type="submit",
@@ -239,50 +237,62 @@ class ArgParser(object):
                     content="width=device-width, initial-scale=1")
                 ),
             my_body)
-        self.submit_actions = submit_actions
 
     def __call__(self, environ, start_response):
         parser = self.parser
-        if environ['REQUEST_METHOD'] == 'POST':
-            # works in Python 3, untested in Python 2
-            form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
-            new_args = copy(self.args)
-            new_args.output = StringIO()  # TODO
-            for action in self.submit_actions:
-                if action.dest in form:
-                    start_response('200 OK', self.headers)
-                    yield parser.format_help().encode()  # TODO
-                    return
-            new_args.input = StringIO(new_args.input.decode())  # TODO
-            for action in parser._actions:
-                key = action.dest
-                if key in form:
-                    value = form.getvalue(key)
-                    setattr(new_args, key, value)
-            try:
-                if 'help' in form:
-                    print('help', file=new_args.output)
-                else:
-                    self.runapp(new_args)
-            except SystemExit as err:
-                if err.code:
-                    print(str(err.code), file=new_args.output)
-                pass
-            except Exception:
-                start_response('500 Internal Server Error', as_html)
-                yield b'<!DOCTYPE html>'
-                yield bytes(Html(Head(), Body(Img(alt="Internal Server Error", src="https://http.cat/500"))))
-                with open('traceback.log', 'w') as tb:
-                    from traceback import print_exc
-                    print_exc(file=tb)
+        if environ['REQUEST_METHOD'] != 'POST':
+            start_response('200 OK', as_html)
+            yield b'<!DOCTYPE html>'
+            yield bytes(self.my_doc)
+            return
+        # works in Python 3, untested in Python 2
+        form = cgi.FieldStorage(fp=environ['wsgi.input'], environ=environ)
+        # Did the user click on a help button?
+        for action in self.submit_actions:
+            if action.dest in form:
+                start_response('200 OK', self.headers)
+                yield parser.format_help().encode()
                 return
+        # Only parse values that we are expecting
+        new_args = copy(self.args)
+        new_args.output = StringIO()  # TODO
+        for action in parser._actions:
+            key = action.dest
+            if key in form:
+                value = form.getvalue(key)
+                setattr(new_args, key, value)
+        print('before: new_args.input', repr(new_args.input)[:72], file=sys.stderr)  # TODO
+        if not hasattr(new_args.input, 'read'):
+            if isinstance(new_args.input, bytes):  # TODO
+                new_args.input = new_args.input.decode()  # TODO
+            new_args.input = StringIO(new_args.input)  # TODO
+        print('after: new_args.input', repr(new_args.input)[:72], file=sys.stderr)  # TODO
+        try:
+            status, tb = (200, 'OK'), None
+            if 'help' in form:
+                print('help', file=new_args.output)
+            else:
+                self.runapp(new_args)
+        except SystemExit as err:
+            if err.code:
+                print(str(err.code), file=new_args.output)
+                status = (400, 'Bad Request')
+        except Exception:
+            status = (500, 'Internal Server Error')
+            from traceback import format_exc
+            tb = format_exc()
+
+        if status[0] == 200:
             start_response('200 OK', self.headers)
             yield new_args.output.getvalue().encode()  # TODO
-            return
-
-        start_response('200 OK', as_html)
-        yield b'<!DOCTYPE html>'
-        yield bytes(self.my_doc)
+        else:
+            start_response('%d %s' % status, as_html)
+            yield b'<!DOCTYPE html>'
+            yield bytes(Html(Head(), Body(Img(alt="Internal Server Error", src="https://http.cat/500"))))
+            if tb:
+                yield bytes(Pre(tb))
+                with open('traceback.log', 'w') as log:
+                    print(tb, file=log)
 
 if __name__ == '__main__':
 ##    from report import main
