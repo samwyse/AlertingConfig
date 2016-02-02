@@ -2,6 +2,7 @@ FROM ubuntu:14.04
 
 RUN apt-get update -y
 RUN apt-get install -y graphviz
+RUN apt-get install -y ttf-dejavu
 RUN apt-get install -y python3-setuptools
 RUN easy_install3 pip
 RUN pip install graphviz

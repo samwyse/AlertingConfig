@@ -3,14 +3,17 @@ default: alpine
 ubuntu:	kill-workers
 	docker build --tag=alerting-reports --file=Dockerfile.ubuntu .
 	docker run -d -p 80:80 --name=worker.1 alerting-reports
+	sleep 3; docker ps -a
 
 alpine:	kill-workers
 	docker build --tag=alerting-reports --file=Dockerfile.alpine .
 	docker run -d -p 80:80 --name=worker.1 alerting-reports
+	sleep 3; docker ps -a
 
 pyrun:	kill-workers
 	docker build --tag=alerting-reports --file=Dockerfile.pyrun .
 	docker run -d -p 80:80 --name=worker.1 alerting-reports
+	sleep 3; docker ps -a
 
 sh:
 	docker exec -i -t worker.1 /bin/sh
