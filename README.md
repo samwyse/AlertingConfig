@@ -1,0 +1,42 @@
+# AlertingConfig
+## Synopsis
+This application produces a report describing the alerting configuration of a ViPR SRM installation.
+While SRM has a GUI allowing easy configuration of the alerting module, there does not appear to be
+any way to view the configuration in its entirety for project documentation, or to preserve a
+human-readable description to track changes.
+
+## Usage
+To use this application, you first need an XML file. There are two ways to get one using the ViPR SRM GUI.
+
+The first is from the alerting frontend GUI. This allows you to download (and report on) a subset
+of the total configuration, but does not provide access to the entire configuration.
+
+![Image of Alerting Frontend](https://raw.githubusercontent.com/samwyse/AlertingConfig/master/src/static/AlertingFrontend.png)
+
+The other is by accessing the alerting backend from the centralized management GUI. This allows you
+to report on the entire alerting configuration in a single document. 
+
+![Image of Centralized Management](https://raw.githubusercontent.com/samwyse/AlertingConfig/master/src/static/CentralizedManagement.png)
+
+Once the desired XML file has been obtained, navigate to http://ec2-54-200-149-40.us-west-2.compute.amazonaws.com/
+to upload it to the report generator. There are two options provided. One allows you to choose
+whether to report on all alert definitions, or only those that are enabled (the default). The 
+other is an experimental feature to inline the HTML style instead of using external CSS files.  
+Please note that the report can take several minutes to generate. Once produced, the report can be saved from your 
+web browser. 
+
+## Installation
+
+This application can be deployed directly via git to a Docker container.
+Sinply clone this project and run <pre>make</pre> 
+
+## Known Issues
+
+* There is no way to add a preface with information about the installation or client. 
+
+* The report does not show if alerts are enabled or disabled.
+
+* There is no option to download the report instead of viewing.
+
+* There is no option to produce a PDF.
+
