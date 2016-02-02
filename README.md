@@ -27,8 +27,12 @@ web browser.
 
 ## Installation
 
-This application can be deployed directly via git to a Docker container.
-Sinply clone this project and run <pre>make</pre> 
+This application can be deployed directly from GitHub to a Docker container.
+```sh
+git clone https://github.com/samwyse/AlertingConfig.git
+cd AlertingConfig
+make
+```
 
 ## Known Issues
 
