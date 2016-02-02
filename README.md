@@ -21,7 +21,8 @@ to report on the entire alerting configuration in a single document.
 Once the desired XML file has been obtained, navigate to http://ec2-54-200-149-40.us-west-2.compute.amazonaws.com/
 to upload it to the report generator. There are two options provided. One allows you to choose
 whether to report on all alert definitions, or only those that are enabled (the default). The 
-other is an experimental feature to inline the HTML style instead of using external CSS files.  
+other is an experimental feature to in-line the HTML style sheets instead of using external CSS files.
+
 Please note that the report can take several minutes to generate. Once produced, the report can be saved from your 
 web browser. 
 
