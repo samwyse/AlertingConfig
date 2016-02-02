@@ -289,7 +289,7 @@ handle both. This class encapsulates the common aspects.'''
                 # See if we cached this earlier.
                 with open(cached_name, 'r') as cached:
                     svg = cached.read()
-            except IOError:
+            except (FileNotFoundError, IOError):
                 try:
                     # Try to generate the data.
                     svg = self.digraph.pipe().decode('utf-8')
