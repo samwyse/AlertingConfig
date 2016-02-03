@@ -1,3 +1,27 @@
+__version__ = 1.1
+__copyright__ = "Copyright 2015 Samuel T. Denton, III"
+__author__ = "Samuel T. Denton, III <sam.denton@emc.com>"
+__contributors__ = []
+
+__license__ = """
+Copyright (c) 2015 Samuel T. Denton, III, <sam.denton@emc.com>
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 from functools import partial
 
 
@@ -5,6 +29,7 @@ __all__ = [ 'Element', 'EmptyElement' ]
 
 
 def import_all(cls, globals=globals()):
+    '''Class decorator that creates partial objects and adds them to the module's __all__ list.'''
     try:
         for tagName in cls.__all__:
             globals.setdefault(tagName, partial(cls, tagName.lower()))
@@ -16,6 +41,8 @@ def import_all(cls, globals=globals()):
 
 @import_all
 class EmptyElement(object):
+    '''An HTML element that does not have a closing element and thus cannot contain sub-elements.'''
+
     __all__ = [
         'Area', 'Base', 'BaseFont', 'Br', 'Col', 'Frame', 'HR', 'Img',
         'Input', 'IsIndex', 'Link', 'Meta', 'Param']
@@ -54,6 +81,8 @@ class EmptyElement(object):
 
 @import_all
 class Element(EmptyElement):
+    '''An HTML element that can contain sub-elements.'''
+
     __all__ = [
         'A', 'Abbr', 'Acronym', 'Address', 'Applet', 'B', 'Bdo', 'Big',
         'Blockquote', 'Body', 'Button', 'Caption', 'Center', 'Cite',
