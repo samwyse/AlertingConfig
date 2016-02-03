@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 '''\
-Read and manipulate a ViPR SRM alerting.xml file.
+Read and report upon a ViPR SRM alerting.xml file.
 
-Tested with Python 2.7.9 and 3.4.3
+Tested with Python 3.4.3
 '''
 
 # Insure maximum compatibility between Python 2 and 3
@@ -11,12 +11,12 @@ from __future__ import absolute_import, division, print_function
 
 
 __version__ = 1.1
-__copyright__ = "Copyright 2015, Sam Denton"
-__author__ = "Sam Denton <sam.denton@emc.com>"
+__copyright__ = "Copyright 2015 Samuel T. Denton, III"
+__author__ = "Samuel T. Denton, III <sam.denton@emc.com>"
 __contributors__ = []
 
 __license__ = """
-Copyright (c) 2015, Sam Denton <sam.denton@emc.com>
+Copyright (c) 2015 Samuel T. Denton, III, <sam.denton@emc.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
