@@ -822,7 +822,7 @@ def main(argv=None):
         srv = make_server(
             args.host, args.port, WSGIdispatcher(
                 (r'demo_app$', demo_app),
-                (r'$', ArgParser(
+                (r'(?:AlertingConfig)$', ArgParser(
                     parser, args, run,
                     headers=[('Content-Type', 'text/html')],
                     skip_groups={'server configuration'})),
