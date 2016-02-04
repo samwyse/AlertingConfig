@@ -18,7 +18,7 @@ to report on the entire alerting configuration in a single document.
 
 ![Image of Centralized Management](https://raw.githubusercontent.com/samwyse/AlertingConfig/master/src/static/CentralizedManagement.png)
 
-Once the desired XML file has been obtained, navigate to http://ec2-54-200-149-40.us-west-2.compute.amazonaws.com/
+Once the desired XML file has been obtained, navigate to http://ec2-54-200-149-40.us-west-2.compute.amazonaws.com/AlertingConfig
 to upload it to the report generator. There are two options provided. One allows you to choose
 whether to report on all alert definitions, or only those that are enabled (the default). The 
 other is an experimental feature to in-line the HTML style sheets instead of using external CSS files.
