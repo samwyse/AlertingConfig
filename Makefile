@@ -1,24 +1,13 @@
-default: alpine
+build:
+	docker build --tag=alerting-reports .
 
-alpine:
-	docker build --tag=alerting-reports --file=Dockerfile.alpine .
-	$(MAKE) restart-workers
-
-ubuntu:
-	docker build --tag=alerting-reports --file=Dockerfile.ubuntu .
-	$(MAKE) restart-workers
-
-pyrun:
-	docker build --tag=alerting-reports --file=Dockerfile.pyrun .
-	$(MAKE) restart-workers
-
-sh:
-	docker exec -i -t worker.1 /bin/sh
-
-restart-workers:
+run:
 	(docker kill worker.1; docker rm worker.1; true) >/dev/null 2>&1
 	docker run -d -p 80:80 --name=worker.1 alerting-reports
 	sleep 3; docker ps -a
+
+sh:
+	docker exec -i -t worker.1 /bin/sh
 
 clean:
 	docker ps -a | awk 'NR>1{print $$NF}' | xargs docker rm; true
