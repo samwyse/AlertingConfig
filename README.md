@@ -34,14 +34,3 @@ git clone https://github.com/samwyse/AlertingConfig.git
 cd AlertingConfig
 make
 ```
-
-## Known Issues
-
-* There is no way to add a preface with information about the installation or client. 
-
-* The report does not show if alerts are enabled or disabled.
-
-* There is no option to download the report instead of viewing.
-
-* There is no option to produce a PDF.
-
