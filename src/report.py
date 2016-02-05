@@ -764,7 +764,7 @@ def main(argv=None):
         description='Produce an HTML report from a ViPR SRM alerting.xml file.',
         epilog='Please be patient.  This program can take a minute or two to run.')
     parser.add_argument('--show_disabled', '-d', action='store_true',
-                        help='Show disabled, as well as enabled, alert definitionss.')
+                        help='Show disabled, as well as enabled, alert definitions.')
     parser.add_argument('--inline', '-i', action='store_true',
                         help='Use inline CSS instead of external links.')
     parser.add_argument('input',
