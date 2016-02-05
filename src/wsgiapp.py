@@ -127,7 +127,10 @@ class WSGIdispatcher(object):
                         else:
                             print('iter()', repr(myfile), file=errors)
                             return iter(lambda: myfile.read(blksz), '')
-            except FileNotFoundError:
+            except (FileNotFoundError, IsADirectoryError):
+                print(
+                    'path = %r\nenviron = %r' % (path, environ),
+                    file=environ['wsgi.errors'])
                 return self.not_found(environ, start_response)
         else:
             return self.not_found(environ, start_response)
