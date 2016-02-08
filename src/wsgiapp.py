@@ -179,6 +179,8 @@ class ArgParser(object):
         self.skip_groups = skip_groups
         self.submit_actions = submit_actions
         self.headers = headers
+        self.inputs = []
+        self.outputs = []
 
         my_body = Body()
         my_form = Form(method='post', enctype='multipart/form-data')
@@ -216,7 +218,9 @@ class ArgParser(object):
                             input_tag += Option(option, value=option)
                     elif isinstance(action.type, argparse.FileType):
                         if 'r' not in action.type._mode:
-                            continue  # TODO: handle output files
+                            self.outputs.append(action)
+                            continue
+                        self.inputs.append(action)
                         input_tag = Input(type='file')
                     else:  #if issubclass(action.type, basestring):
                         input_tag = Input(type='text')
@@ -258,61 +262,69 @@ class ArgParser(object):
                 return
         # Only parse values that we are expecting
         new_args = copy(self.args)
-        new_args.output = StringIO()  # TODO
+        for action in self.outputs:
+            setattr(new_args, action.dest, StringIO())
         for action in parser._actions:
             key = action.dest
             if key in form:
                 value = form.getvalue(key)
                 setattr(new_args, key, value)
-        print('before: new_args.input', repr(new_args.input)[:72], file=sys.stderr)  # TODO
-        if not hasattr(new_args.input, 'read'):
-            if isinstance(new_args.input, bytes):  # TODO
-                new_args.input = new_args.input.decode()  # TODO
-            new_args.input = StringIO(new_args.input)  # TODO
-        print('after: new_args.input', repr(new_args.input)[:72], file=sys.stderr)  # TODO
+        for action in self.inputs:
+            input = getattr(new_args, action.dest)
+            if not hasattr(input, 'read'):
+                if hasattr(input, 'decode'):
+                    input = input.decode()
+                input = StringIO(input)
         try:
-            status, tb = (200, 'OK'), None
+            assert len(self.outputs) <= 1, 'too many output files'
             if 'help' in form:
                 print('help', file=new_args.output)
             else:
-                self.runapp(new_args)
+                sys.exit(self.runapp(new_args))
         except SystemExit as err:
-            if err.code:
-                print(str(err.code), file=new_args.output)
-                status = (400, 'Bad Request')
+            if not err.code:
+                start_response('200 OK', self.headers)
+                for action in self.outputs:
+                    output = getattr(new_args, action.dest)
+                    if hasattr(output, 'getvalue'):
+                        output = output.getvalue()
+                    if hasattr(output, 'encode'):
+                        output = output.encode()
+                    yield output
+                return
+            status = '400 Bad Request'
+            tb = None
         except Exception:
-            status = (500, 'Internal Server Error')
+            status = '500 Internal Server Error'
             from traceback import format_exc
             tb = format_exc()
+            with open('traceback.log', 'w') as log:
+                print(tb, file=log)
 
-        if status[0] == 200:
-            start_response('200 OK', self.headers)
-            yield new_args.output.getvalue().encode()  # TODO
-        else:
-            start_response('%d %s' % status, as_html)
-            yield b'<!DOCTYPE html>'
-            yield bytes(Html(Head(), Body(Img(alt="Internal Server Error", src="https://http.cat/500"))))
-            if tb:
-                yield bytes(Pre(tb))
-                with open('traceback.log', 'w') as log:
-                    print(tb, file=log)
+        start_response(status, as_html)
+        yield b'<!DOCTYPE html>'
+        body = Body(Img(alt="Internal Server Error",
+                        src="https://http.cat/500"))
+        if tb:
+            body += Pre(tb)
+        yield bytes(Html(Head(), body))
 
 if __name__ == '__main__':
-##    from report import main
-##    main()
-##elif False:
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('--input', type=argparse.FileType('r'))
+    parser.add_argument('--i1', type=argparse.FileType('r'))
+    parser.add_argument('--i2', type=argparse.FileType('r'))
     parser.add_argument('--output', type=argparse.FileType('w'))
+    #parser.add_argument('--o2', type=argparse.FileType('w'))
     args = parser.parse_args()
 
     def mycode(args):
         import sys
         print('args =', args)
         print('success!', file=args.output)  # TODO
-        sys.exit(1)
+##        raise ZeroDivisionError()
+##        sys.exit(1)
 
-    if True:
+    if False:
         from wsgiref.simple_server import make_server
         srv = make_server('', 8080, ArgParser(parser, args, mycode))
         print('listening on %s:%d...' % srv.server_address)
@@ -320,13 +332,16 @@ if __name__ == '__main__':
     else:
         app = ArgParser(parser, args, mycode)
 
+        print('*** GET ***')
         for item in app({'REQUEST_METHOD': 'GET'}, print):
-            print(item)
+            print('>', item)
 
         class FS(dict): getvalue = dict.get
-        cgi.FieldStorage = lambda **kwds: FS(input=b'foo')
+        cgi.FieldStorage = lambda **kwds: FS(i1=b'foo', i2=b'bar')
+
+        print('*** POST ***')
         for item in app({
             'REQUEST_METHOD': 'POST',
             'wsgi.input': None,
             }, print):
-            print(item)
+            print('>', item)
