@@ -762,36 +762,41 @@ def popattr(*args):
 def main(argv=None):
     parser = argparse.ArgumentParser(
         description='Produce an HTML report from a ViPR SRM alerting.xml file.',
-        epilog='Please be patient.  This program can take a minute or two to run.')
+        epilog='Please be patient.  This program can take a few minutes to run.')
     parser.add_argument('--show_disabled', '-d', action='store_true',
-                        help='Show disabled, as well as enabled, alert definitions.')
+                        help='show disabled, as well as enabled, alert definitions.')
     parser.add_argument('--inline', '-i', action='store_true',
-                        help='Use inline CSS instead of external links.')
+                        help='use inline CSS instead of external links.')
     parser.add_argument('input',
                         nargs='?', type=argparse.FileType('r'),
                         default=sys.stdin,
-                        help='An alerting.xml file downloaded from ViPR SRM.')
+                        help='an alerting.xml file downloaded from ViPR SRM.')
     parser.add_argument('output',
                         nargs='?', type=argparse.FileType('w'),
                         default=None,
-                        help='The HTML report to generate.')
+                        help='the HTML report to generate.')
     group1 = parser.add_argument_group('server configuration',
-                        description='Information not needed when running as a web client.')
-    group1.add_argument('--dialog', '-D', action='store_true',
-                        help='Interactively ask for all parameters.')
-    group1.add_argument('--wsgi', '-W', action='store_true',
-                        help='Start as a web service.')
-    group1.add_argument('--host', '-H',
-                        default='0.0.0.0')
+                        description='''\
+specifying either either of these will cause this to run as a web server.''')
+    group1.add_argument('--address', '-A',
+                        default='',
+                        help='''\
+run as a web server, bound to the specified address''')
     group1.add_argument('--port', '-P',
-                        type=int, default=0)
+                        type=int, default=0,
+                        help='''\
+run as a web server, listening on the specified port''')
+    group1 = parser.add_argument_group('other configuration',
+                        description='information not needed when running as a web client.')
+    group1.add_argument('--dialog', '-D', action='store_true',
+                        help='interactively ask for all parameters.')
     group1.add_argument('--profile', action='store_true',
-                        help='Run the Python profiler.')
+                        help='run the Python profiler.')
     group1.add_argument('--graphviz_path', '-G',
                         nargs=1, type=str,
                         # http://enterprise-architecture.org/downloads?id=208
                         default=None if os.name == 'posix' else r'C:\Program Files (x86)\Graphviz2.38\bin',
-                        help='The path to the graphviz executable.')
+                        help='the path to the graphviz executable.')
     args = parser.parse_args(argv)
 
     if args.graphviz_path and os.path.isdir(args.graphviz_path):
@@ -813,19 +818,19 @@ def main(argv=None):
                 else:
                     break
 
-    if args.wsgi:
+    if args.address or args.port:
         # Python standard libraries
         from wsgiref.simple_server import make_server, demo_app
         # Python personal libraries
         from wsgiapp import ArgParser, WSGIdispatcher
 
         srv = make_server(
-            args.host, args.port, WSGIdispatcher(
+            args.address, args.port, WSGIdispatcher(
                 (r'demo_app$', demo_app),
-                (r'(?:AlertingConfig)$', ArgParser(
+                (r'(?:AlertingConfig)?$', ArgParser(
                     parser, args, run,
                     headers=[('Content-Type', 'text/html')],
-                    skip_groups={'server configuration'})),
+                    skip_groups={'server configuration', 'other configuration'})),
                 static_path='static'))
         print('listening on %s:%d...' % srv.server_address)
         srv.serve_forever()
