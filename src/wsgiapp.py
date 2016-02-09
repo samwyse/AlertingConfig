@@ -275,10 +275,12 @@ class ArgParser(object):
                 if hasattr(input, 'decode'):
                     input = input.decode()
                 input = StringIO(input)
+                setattr(new_args, action.dest, input)
         try:
             assert len(self.outputs) <= 1, 'too many output files'
             if 'help' in form:
-                print('help', file=new_args.output)
+                print('help', file=new_args.output)  # TODO
+                sys.exit(0)
             else:
                 sys.exit(self.runapp(new_args))
         except SystemExit as err:
