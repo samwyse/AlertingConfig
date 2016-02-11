@@ -11,4 +11,4 @@ ADD src .
 
 EXPOSE 80
 
-CMD [ "python3", "report.py", "--wsgi", "--port", "80" ]
+CMD [ "python3", "report.py", "--port", "80" ]
