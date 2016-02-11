@@ -122,15 +122,15 @@ class WSGIdispatcher(object):
 
                         errors = environ['wsgi.errors']
                         if 'wsgi.file_wrapper' in environ:
-                            print('wsgi.file_wrapper', repr(myfile), file=errors)
+##                            print('wsgi.file_wrapper', repr(myfile), file=errors)
                             return environ['wsgi.file_wrapper'](myfile, blksz)
                         else:
-                            print('iter()', repr(myfile), file=errors)
+##                            print('iter()', repr(myfile), file=errors)
                             return iter(lambda: myfile.read(blksz), '')
             except (FileNotFoundError, IsADirectoryError):
-                print(
-                    'path = %r\nenviron = %r' % (path, environ),
-                    file=environ['wsgi.errors'])
+##                print(
+##                    'path = %r\nenviron = %r' % (path, environ),
+##                    file=environ['wsgi.errors'])
                 return self.not_found(environ, start_response)
         else:
             return self.not_found(environ, start_response)
