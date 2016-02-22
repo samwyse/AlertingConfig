@@ -826,8 +826,9 @@ run as a web server, listening on the specified port''')
 
         srv = make_server(
             args.address, args.port, WSGIdispatcher(
-                (r'demo_app$', demo_app),
-                (r'(?:AlertingConfig)?$', ArgParser(
+                # Note that WSGIdispatcher uses .fullmatch, so beginning and end anchors are not required.
+                (r'demo_app', demo_app),
+                (r'AlertingConfig', ArgParser(
                     parser, args, run,
                     headers=[('Content-Type', 'text/html')],
                     skip_groups={'server configuration', 'other configuration'})),
