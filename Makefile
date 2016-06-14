@@ -2,12 +2,16 @@ build:
 	docker build --tag=alerting-reports .
 
 run:
-	(docker kill webserver; docker rm webserver; true) >/dev/null 2>&1
+	$(MAKE) kill
+	$(MAKE) clean
 	docker run -d -p 80:80 --name=webserver alerting-reports
 	sleep 3; docker ps -a
 
 sh:
 	docker exec -i -t webserver /bin/sh
+
+kill:
+	docker ps -a | awk 'NR>1{print $$NF}' | xargs docker kill; true
 
 clean:
 	docker ps -a | awk 'NR>1{print $$NF}' | xargs docker rm; true
