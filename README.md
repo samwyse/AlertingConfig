@@ -32,12 +32,22 @@ can be saved from your web browser.
 ## Installation
 
 This application can be deployed directly from GitHub to a Docker container.
+
 ```sh
 git clone https://github.com/samwyse/AlertingConfig.git
 cd AlertingConfig
 make && make run
 ```
 
+Once installed, update it periodically.
+
+```sh
+cd AlertingConfig
+git pull
+make && make run
+```
+
 ## Issues
 
 See <https://github.com/samwyse/AlertingConfig/issues>
+
