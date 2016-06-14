@@ -127,7 +127,7 @@ class WSGIdispatcher(object):
                         else:
 ##                            print('iter()', repr(myfile), file=errors)
                             return iter(lambda: myfile.read(blksz), '')
-            except (FileNotFoundError, IsADirectoryError):
+            except (FileNotFoundError, IsADirectoryError, OSError):
 ##                print(
 ##                    'path = %r\nenviron = %r' % (path, environ),
 ##                    file=environ['wsgi.errors'])
@@ -294,19 +294,19 @@ class ArgParser(object):
                         output = output.encode()
                     yield output
                 return
-            status = '400 Bad Request'
+            status_code, reason_phrase = 400, 'Bad Request'
             tb = None
         except Exception:
-            status = '500 Internal Server Error'
+            sstatus_code, reason_phrase = 500, 'Internal Server Error'
             from traceback import format_exc
             tb = format_exc()
             with open('traceback.log', 'w') as log:
                 print(tb, file=log)
 
-        start_response(status, as_html)
+        start_response('%d %s' % (status_code, reason_phrase), as_html)
         yield b'<!DOCTYPE html>'
-        body = Body(Img(alt="Internal Server Error",
-                        src="https://http.cat/500"))
+        body = Body(Img(alt=reason_phrase,
+                        src="https://http.cat/%d" % status_code))
         if tb:
             body += Pre(tb)
         yield bytes(Html(Head(), body))
