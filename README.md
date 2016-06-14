@@ -47,6 +47,14 @@ git pull
 make && make run
 ```
 
+If you make local changes, push them upstream.
+
+```sh
+cd AlertingConfig
+git stage $CHANGES
+git commit```
+git push```
+
 ## Issues
 
 See <https://github.com/samwyse/AlertingConfig/issues>
