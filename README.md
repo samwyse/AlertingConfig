@@ -51,8 +51,8 @@ If you make local changes, push them upstream.
 
 ```sh
 cd AlertingConfig
-git stage $CHANGES
-git commit```
+git status
+git commit -a
 git push```
 
 ## Issues
