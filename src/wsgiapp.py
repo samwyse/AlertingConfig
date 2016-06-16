@@ -276,6 +276,7 @@ class ArgParser(object):
                     input = input.decode()
                 input = StringIO(input)
                 setattr(new_args, action.dest, input)
+        status_code, reason_phrase = 500, 'OK'
         try:
             assert len(self.outputs) <= 1, 'too many output files'
             if 'help' in form:

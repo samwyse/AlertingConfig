@@ -60,6 +60,7 @@ type to be contiguous, and for the element types to appear in a particular
 order.  This routine relaxes those constraints a bit, only requiring the
 first occurance of an element type to appear in the order needed by the
 alerting module.'''
+        ##print('initializing AlertingConfig with', repr(keywords))
         self.__dict__.update(keywords)        
         list_by_tagname = self.list_by_tagname = OrderedDefaultDict(list)
         index_by_tagname = self.index_by_tagname = defaultdict(dict)

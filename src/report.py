@@ -228,7 +228,7 @@ handle both. This class encapsulates the common aspects.'''
             labelloc='t',
             splines='True',
             overlap='False',
-            rankdir='LR',
+            rankdir=self.args.rankdir,
             id='${uniqueid}',  #fmt('graph-{0!q}', id(self)),
             )
         self.digraph.node_attr.update(
@@ -597,6 +597,7 @@ class ConfigReporter(BaseAlertingConfig):
             self.html(fmt('<h2><a name="{0!q}">{1!q}</a></h2>', self.unique_name, info2['name']))
             self.show_basic_info(info2)
             nested = GroupedBoxReporter(grouped_box,
+                                        args=self.args,
                                         html=self.html,
                                         unique_name=self.unique_name,
                                         jclasses=self.jclasses,
@@ -767,6 +768,11 @@ def main(argv=None):
                         help='show disabled, as well as enabled, alert definitions.')
     parser.add_argument('--inline', '-i', action='store_true',
                         help='use inline CSS instead of external links.')
+    parser.add_argument('--rankdir', choices=['TB', 'LR', 'BT', 'RL'], default='LR',
+                        help='''\
+"TB", "LR", "BT", "RL", corresponding to graphs drawn from top to
+bottom, from left to right, from bottom to top, and from right to left,
+respectively.''')
     parser.add_argument('input',
                         nargs='?', type=argparse.FileType('r'),
                         default=sys.stdin,
