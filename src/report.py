@@ -127,22 +127,60 @@ else:
 fill = tw.fill
 
 
-leaving_corners = {
-    1: 'e'.split(),
-    2: 'ne se'.split(),
-    3: 'ne e se'.split(),
-    4: 'n ne se s'.split(),
-    5: 'n ne e se s'.split(),
+LEAVING_CORNERS = {
+    1: ['e'],
+    2: ['ne', 'se'],
+    3: ['ne', 'e', 'se'],
+    4: ['n', 'ne', 'se', 's'],
+    5: ['n', 'ne', 'e', 'se', 's'],
     }
 
-entering_corners = {
-    1: 'w'.split(),
-    2: 'nw sw'.split(),
-    3: 'nw w sw'.split(),
-    4: 'n nw sw s'.split(),
-    5: 'n nw w sw s'.split(),
+ENTERING_CORNERS = {
+    1: ['w'],
+    2: ['nw', 'sw'],
+    3: ['nw', 'w', 'sw'],
+    4: ['n', 'nw', 'sw', 's'],
+    5: ['n', 'nw', 'w', 'sw', 's'],
     }
 
+rotations = {
+    'BT': {
+        'e': 'n',
+        'n': 'w',
+        'ne': 'nw',
+        'nw': 'sw',
+        's': 'e',
+        'se': 'ne',
+        'sw': 'se',
+        'w': 's'},
+    'LR': {
+        'e': 'e',
+        'n': 'n',
+        'ne': 'ne',
+        'nw': 'nw',
+        's': 's',
+        'se': 'se',
+        'sw': 'sw',
+        'w': 'w'},
+    'RL': {
+        'e': 'w',
+        'n': 's',
+        'ne': 'sw',
+        'nw': 'se',
+        's': 'n',
+        'se': 'nw',
+        'sw': 'ne',
+        'w': 'e'},
+    'TB': {
+        'e': 's',
+        'n': 'e',
+        'ne': 'se',
+        'nw': 'ne',
+        's': 'w',
+        'se': 'sw',
+        'sw': 'nw',
+        'w': 'n'},
+    }
 
 # UsefulInfo should really be a base class...
 UsefulInfo = namedtuple('UsefulInfo', 'title, keyAttr, filter, key_is_path')
@@ -249,9 +287,11 @@ handle both. This class encapsulates the common aspects.'''
             leaving[from_node].add(from_port)
             entering[to_node].add(to_port)
         leaving_mapping = {}
+        leaving_corners = self.args.leaving_corners
         for node, ports in sorted(leaving.items()):
             leaving_mapping[node] = {port: corner for port, corner in zip(sorted(ports), leaving_corners[len(ports)])}
         entering_mapping = {}
+        entering_corners = self.args.entering_corners
         for node, ports in sorted(entering.items()):
             entering_mapping[node] = {port: corner for port, corner in zip(sorted(ports), entering_corners[len(ports)])}
         # If multiple edges leave (or enter) via the same port, we only want to label the first one.
@@ -845,7 +885,7 @@ run as a web server, listening on the specified port''')
 
     if not args.output:
         if args.input.name and args.input.name != sys.stdin.name:
-            output = os.path.splitext(name)[0] + '.html'
+            output = os.path.splitext(args.input.name)[0] + '.html'
             args.output = open(output, 'w')
         else:
             args.output = sys.stdout
@@ -867,6 +907,10 @@ def run(args):
     else:
         important_basic_information['definition-list'] = hide_disabled_defs
 
+    rot = rotations['TB']
+    args.leaving_corners = dict((k,[rot[item] for item in v]) for k,v in LEAVING_CORNERS.items())
+    args.entering_corners = dict((k,[rot[item] for item in v]) for k,v in ENTERING_CORNERS.items())
+
     root = dom.childNodes[0]
     
     if popattr(args, 'profile'):
@@ -878,5 +922,7 @@ def run(args):
 
 
 if __name__ == '__main__':
-##    main(r'C:\Users\dentos\Documents\GitHub\ViPR-SRM-tools\AlertingConfig\alerting-grouped-boxes.xml nul'.split())
-    main()
+    main(r'''
+--rankdir TB
+C:\Users\dentos\Documents\GitHub\AlertingConfig-old\alerting-export.xml'''.split())
+##    main()
