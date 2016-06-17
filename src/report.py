@@ -323,7 +323,7 @@ handle both. This class encapsulates the common aspects.'''
             print(source)
         m = md5()
         m.update(source.encode() if isinstance(source, unicode) else source)
-        cached_name = ".cache/%s-%d.svg" % (m.hexdigest(), len(source))
+        cached_name = ".cache/%s-%s-%d.svg" % (m.hexdigest(), self.args.rankdir, len(source))
         if True:  ## args.inline:
             try:
                 # See if we cached this earlier.
@@ -853,7 +853,7 @@ run as a web server, listening on the specified port''')
         print('Enter values, or press <Enter> to accept the default.')
         for key, value in sorted(args.__dict__.items()):
             while True:
-                s = raw_input('  {} (default: {}) > '.format(key, value))
+                s = input('  {} (default: {}) > '.format(key, value))
                 if not s:
                     break
                 try:
@@ -922,7 +922,7 @@ def run(args):
 
 
 if __name__ == '__main__':
-    main(r'''
---rankdir TB
-C:\Users\dentos\Documents\GitHub\AlertingConfig-old\alerting-export.xml'''.split())
-##    main()
+##    main(r'''
+##--rankdir TB
+##C:\Users\dentos\Documents\GitHub\AlertingConfig-old\alerting-export.xml'''.split())
+    main()
