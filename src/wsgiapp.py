@@ -215,7 +215,10 @@ class ArgParser(object):
                         if action.nargs not in optional:
                             input_tag.setAttribute('required', None)
                         for option in action.choices:
-                            input_tag += Option(option, value=option)
+                            if option == action.default:
+                                input_tag += Option(option, value=option, selected=1)
+                            else:
+                                input_tag += Option(option, value=option)
                     elif isinstance(action.type, argparse.FileType):
                         if 'r' not in action.type._mode:
                             self.outputs.append(action)
