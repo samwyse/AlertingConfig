@@ -20,7 +20,7 @@ allows you to report on the entire alerting configuration in a single document.
 ![Image of Centralized Management](https://raw.githubusercontent.com/samwyse/AlertingConfig/master/src/static/CentralizedManagement.png)
 
 Once the desired XML file has been obtained, navigate to 
-http://ec2-54-200-149-40.us-west-2.compute.amazonaws.com/AlertingConfig
+http://ec2-54-213-110-208.us-west-2.compute.amazonaws.com/AlertingConfig
 to upload it to the report generator. There are two options provided. One allows you to
 choose whether to report on all alert definitions, or only those that are enabled (the
 default). The other is an experimental feature to in-line the HTML style sheets instead 
@@ -31,12 +31,20 @@ can be saved from your web browser.
 
 ## Installation
 
+If you are starting from, for example, a fresh EC2 instance, you must prepare your installation.
+
+```sh
+sudo yum install git docker
+sudo /etc/rc.d/init.d/docker start
+```
+
 This application can be deployed directly from GitHub to a Docker container.
 
 ```sh
 git clone https://github.com/samwyse/AlertingConfig.git
 cd AlertingConfig
-make && make run
+sudo make
+sudo make run
 ```
 
 Once installed, update it periodically.
@@ -44,7 +52,8 @@ Once installed, update it periodically.
 ```sh
 cd AlertingConfig
 git pull
-make && make run
+sudo make
+sudo make run
 ```
 
 If you make local changes, push them upstream.
