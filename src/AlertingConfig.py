@@ -51,29 +51,34 @@ class OrderedDefaultDict(OrderedDict, defaultdict):
 
 class AlertingConfig(object):
 
-    def __init__(self, root, **keywords):
+    def __init__(self, base, **keywords):
         '''\
-Create an index of the alerting.xml file.
+Create or copy indexes of the alerting.xml file.
 
 The current alerting module requires all top-level children of a particular
 type to be contiguous, and for the element types to appear in a particular
 order.  This routine relaxes those constraints a bit, only requiring the
 first occurance of an element type to appear in the order needed by the
 alerting module.'''
-        ##print('initializing AlertingConfig with', repr(keywords))
-        self.__dict__.update(keywords)        
-        list_by_tagname = self.list_by_tagname = OrderedDefaultDict(list)
-        index_by_tagname = self.index_by_tagname = defaultdict(dict)
-        ELEMENT_NODE = root.ELEMENT_NODE
-        for child in root.childNodes:
-            if child.nodeType == ELEMENT_NODE:
-                tagName = child.tagName
-                list_by_tagname[tagName].append(child)
-                for attr in 'id', 'name':
-                    id = child.getAttribute(attr)
-                    if id:
-                        index_by_tagname[tagName][id] = child
-                        break
+        self.__dict__.update(keywords)
+        if isinstance(base, AlertingConfig):
+            self.root = base.root
+            self.list_by_tagname = base.list_by_tagname
+            self.index_by_tagname = base.index_by_tagname
+        else:
+            self.root = base
+            list_by_tagname = self.list_by_tagname = OrderedDefaultDict(list)
+            index_by_tagname = self.index_by_tagname = defaultdict(dict)
+            ELEMENT_NODE = base.ELEMENT_NODE
+            for child in base.childNodes:
+                if child.nodeType == ELEMENT_NODE:
+                    tagName = child.tagName
+                    list_by_tagname[tagName].append(child)
+                    for attr in 'id', 'name':
+                        id = child.getAttribute(attr)
+                        if id:
+                            index_by_tagname[tagName][id] = child
+                            break
 
     def generate(self):
         '''\
@@ -105,10 +110,14 @@ passed a list of all elements of that type.'''
         else:
             func()
 
-if __name__ == '__main__':
-    print(__doc__)
+class action(object):
+    ESRSAction = 'com.watch4net.alerting.action.ESRSAction'
+    LogAction = 'com.watch4net.alerting.action.LogAction'
+    MailAction = 'com.watch4net.alerting.action.MailAction'
+    SAMAction = 'com.watch4net.alerting.action.SAMAction'
+    SNMPTrapAction = 'com.watch4net.alerting.action.SNMPTrapAction'
 
-def _test():
+def _test(alerting_xml):
     import doctest
     doctest.testmod()
 
@@ -166,6 +175,10 @@ def _test():
                 self.depth -= 1
 
     import xml.dom.minidom
-    dom = xml.dom.minidom.parse('alerting.xml')
+    dom = xml.dom.minidom.parse(alerting_xml)
     root = dom.childNodes[0]
     PrintOutline(root).generate()
+
+if __name__ == '__main__':
+    print(__doc__)
+##    _test(r'alerting.xml')
