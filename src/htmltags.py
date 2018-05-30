@@ -29,7 +29,9 @@ __all__ = [ 'Element', 'EmptyElement' ]
 
 
 def import_all(cls, globals=globals()):
-    '''Class decorator that creates partial objects and adds them to the module's __all__ list.'''
+    '''\
+Class decorator that creates partial objects and adds them to the
+module's __all__ list.'''
     try:
         for tagName in cls.__all__:
             globals.setdefault(tagName, partial(cls, tagName.lower()))
@@ -41,7 +43,9 @@ def import_all(cls, globals=globals()):
 
 @import_all
 class EmptyElement(object):
-    '''An HTML element that does not have a closing element and thus cannot contain sub-elements.'''
+    '''\
+An HTML element that does not have a closing element and thus cannot
+contain sub-elements.'''
 
     __all__ = [
         'Area', 'Base', 'BaseFont', 'Br', 'Col', 'Frame', 'HR', 'Img',
@@ -50,7 +54,7 @@ class EmptyElement(object):
     def __init__(self, tagName, **attributes):
         self.tagName = tagName
         self.attributes = attributes
-        super().__init__()
+        super(EmptyElement, self).__init__()
 
     def __iter__(self):
         yield '<' + self.tagName
@@ -98,7 +102,7 @@ class Element(EmptyElement):
     
     def __init__(self, tagName, *childNodes, **attributes):
         self.childNodes = list(childNodes )
-        super().__init__(tagName, **attributes)
+        super(Element, self).__init__(tagName, **attributes)
         
     def __iadd__(self, item):
         self.childNodes.append(item)
@@ -117,3 +121,9 @@ class Element(EmptyElement):
             for item in self.childNodes:
                 yield str(item)
             yield '</' + self.tagName+'>'
+
+##    def __enter__(self):
+##        pass
+##
+##    def __exit__(self, exc_type, exc_value, traceback):
+##        pass
