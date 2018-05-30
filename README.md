@@ -22,8 +22,9 @@ configuration in a single document.
 
 ![Image of Centralized Management](https://raw.githubusercontent.com/samwyse/AlertingConfig/master/src/static/CentralizedManagement.png)
 
-Once the desired XML file has been obtained, navigate to 
-http://ec2-54-213-110-208.us-west-2.compute.amazonaws.com/AlertingConfig
+(My free AWS instance has expired, so the web interface is no longer around.)
+
+Once the desired XML file has been obtained, navigate to the web interface
 to upload it to the report generator. There are two options provided. 
 One allows you to choose whether to report on all alert definitions, 
 or only those that are enabled (the default). The other is an experimental 
