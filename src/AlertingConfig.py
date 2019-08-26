@@ -44,10 +44,17 @@ def getText(nodelist):
             rc.append(node.data)
     return ''.join(rc)
 
-class OrderedDefaultDict(OrderedDict, defaultdict):
+##class OrderedDefaultDict(OrderedDict, defaultdict):
+##    def __init__(self, default_factory=None, *args, **kwds):
+##        super(OrderedDefaultDict, self).__init__(*args, **kwds)
+##        self.default_factory = default_factory
+
+class OrderedDefaultDict(OrderedDict):
     def __init__(self, default_factory=None, *args, **kwds):
         super(OrderedDefaultDict, self).__init__(*args, **kwds)
         self.default_factory = default_factory
+    def __missing__(self, default_factory=None, *args, **kwds):
+        return self.default_factory()
 
 class AlertingConfig(object):
 

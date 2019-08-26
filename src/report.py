@@ -58,7 +58,15 @@ else:
     unicode = str
 
 # Python site libraries
-from graphviz import Digraph
+try:
+    from graphviz import Digraph
+except:
+    print("""
+Can't import graphviz! You can use 'pip install graphviz' to fix that
+but you probably don't have the software installed, either.  Go to
+http://www.graphviz.org/download/ to get it.
+""", file=sys.stderr)
+    sys.exit(1)
 
 # Python personal libraries
 from AlertingConfig import AlertingConfig, getText
@@ -321,22 +329,25 @@ handle both. This class encapsulates the common aspects.'''
         source = self.digraph.source
         if getattr(self, 'debug', False):
             print(source)
-        m = md5()
-        m.update(source.encode() if isinstance(source, unicode) else source)
-        cached_name = ".cache/%s-%s-%d.svg" % (m.hexdigest(), self.args.rankdir, len(source))
+        hashed = md5(source.encode() if isinstance(source, unicode) else source)
+        cached_name = ".cache/%s-%s-%d.svg" % (hashed.hexdigest(), self.args.rankdir, len(source))
         if True:  ## args.inline:
             try:
                 # See if we cached this earlier.
                 with open(cached_name, 'r') as cached:
                     svg = cached.read()
-            except (FileNotFoundError, IOError):
+                    print(fmt('using cached copy {0!r}', cached_name))
+            except EnvironmentError:
                 try:
                     # Try to generate the data.
                     svg = self.digraph.pipe().decode('utf-8')
+                    print('generated the graph')
                 except:
                     # Protect ourselves in case of problems.
                     svg = '[Graphviz not found, graphs will not be generated.]'
+                    print(svg)
                 else:
+                    print(fmt('saving to cache {0!r}', cached_name))
                     with open(cached_name, 'w') as cached:
                         cached.write(svg)
             finally:
@@ -925,4 +936,4 @@ if __name__ == '__main__':
 ##    main(r'''
 ##--rankdir TB
 ##C:\Users\dentos\Documents\GitHub\AlertingConfig-old\alerting-export.xml'''.split())
-    main()
+    main('--port 48080'.split())

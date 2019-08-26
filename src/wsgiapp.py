@@ -49,6 +49,8 @@ clean up after itself, as any resource leaks will eventually cause the
 web server to crash.
 '''
 
+# Insure maximum compatibility between Python 2 and 3
+from __future__ import absolute_import, division, print_function
 
 from datetime import datetime
 import os, sys
@@ -73,20 +75,25 @@ class WSGIdispatcher(object):
         'CON', 'AUX', 'COM1', 'COM2', 'COM3', 'COM4',
         'LPT1', 'LPT2', 'LPT3', 'PRN', 'NUL'}
 
-    def __init__(self, *dispatch_table, static_path=None):
+    def __init__(self, *dispatch_table, **kwargs):
         import re
-        end = '' if hasattr(re, 'fullmatch') else '$'
-        self.static_path = static_path
+        if hasattr(re, 'fullmatch'):
+            end = ''
+            match_method = 'fullmatch'
+        else:
+            end = '$'
+            match_method = 'match'
+        self.static_path = kwargs.get('static_path')
         self.dispatch_table = [
-            (re.compile(pattern+end), callback)
+            (getattr(re.compile(pattern+end), match_method), callback)
             for pattern, callback in dispatch_table
             ]
 
     def __call__(self, environ, start_response):
         path_info = environ.get('PATH_INFO', '')
         path = path_info.lstrip('/')
-        for regex, callback in self.dispatch_table:
-            match = regex.fullmatch(path)
+        for matcher, callback in self.dispatch_table:
+            match = matcher(path)
             if match is not None:
                 environ['myapp.url_args'] = match.groups()
                 return callback(environ, start_response)
@@ -127,7 +134,7 @@ class WSGIdispatcher(object):
                         else:
 ##                            print('iter()', repr(myfile), file=errors)
                             return iter(lambda: myfile.read(blksz), '')
-            except (FileNotFoundError, IsADirectoryError, OSError):
+            except EnvironmentError:
 ##                print(
 ##                    'path = %r\nenviron = %r' % (path, environ),
 ##                    file=environ['wsgi.errors'])
